@@ -1,0 +1,166 @@
+
+AutoDL:
+    Must_Thinking_Models: ["DeepSeek-R1-0528", "GLM-5", "MiniMax-M2.7", "MiniMax-M2.5", "DeepSeek-V4-Flash", "DeepSeek-V4-Pro"]
+    # 这是些无法正常关闭思考模式的模型，当思考模式选项为 "none" 的时候，强制使用 "Anthropic"，它对自己以外的模型，都没有推理效果
+    SDK_Map:
+        "OpenAI": "https://www.autodl.art/api/v1"
+        "OpenAI_Responses": "https://www.autodl.art/api/v1"
+        "Anthropic": "https://www.autodl.art/api/v1/anthropic"
+        "Gemini": "https://www.autodl.art/api/v1/gemini"
+    Model_Map:
+        VLM:
+            Qwen3.5-397B-A17B:
+                sdk_name: "OpenAI"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            "qwen3.6-plus":
+                sdk_name: "OpenAI"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            Kimi-K2.5:
+                sdk_name: "OpenAI"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh", "wwwww"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+        # VLM-R:
+            "gpt-5.4":
+                sdk_name: "OpenAI_Responses"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
+                max_tokens: 2048
+                seed: 0
+                web_search: False
+            "gpt-5.4-mini":
+                sdk_name: "OpenAI_Responses"
+                thinking: ["none", "low", "medium", "high", "xhigh"] # 不支持 "minimal"
+                max_tokens: 2048
+                seed: 0
+                web_search: False
+            "gpt-5.4-nano":
+                sdk_name: "OpenAI_Responses"
+                thinking: ["none", "low", "medium", "high", "xhigh"] # 不支持 "minimal"
+                max_tokens: 2048
+                seed: 0
+                web_search: False
+            "gpt-5.5":
+                sdk_name: "OpenAI_Responses"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
+                max_tokens: 2048
+                seed: 0
+                web_search: False
+        LLM:
+            DeepSeek-R1-0528:
+                sdk_name: "OpenAI"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            DeepSeek-V3.2:
+                sdk_name: "OpenAI"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            "DeepSeek-V4-Flash":
+                sdk_name: "OpenAI"
+                thinking: ["none", "low", "medium", "high", "xhigh", "max"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            "DeepSeek-V4-Pro":
+                sdk_name: "OpenAI"
+                thinking: ["none", "low", "medium", "high", "xhigh", "max"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            GLM-5:
+                sdk_name: "OpenAI"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            MiniMax-M2.5:
+                sdk_name: "OpenAI"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            MiniMax-M2.7:
+                sdk_name: "OpenAI"
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            # Anthropic d对 claude 支持比较好，特别是 claude-opus-4-6
+            
+            # "claude-opus-4-7":
+            #     sdk_name: "Anthropic"
+            #     thinking: ["none", "low", "medium", "high", "max"] 
+                # ❌ 4.7 开启方式居然不一样，必须改成  thinking={"type": "enabled", "budget_tokens": 1800}, 才能激活，打算不要它了
+            "claude-opus-4-7-cc":
+                sdk_name: "Anthropic"
+                thinking: ["none", "low", "medium", "high", "max"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            "claude-opus-4-6-cc":
+                sdk_name: "Anthropic"
+                thinking: ["low", "medium", "high", "max"] # ❌ 无法关闭思考模式
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            "claude-opus-4-6":
+                sdk_name: "Anthropic"
+                thinking: ["none", "low", "medium", "high", "max"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+                
+
+        I2I:
+            "gemini-2.5-flash-image":
+                sdk_name: "OpenAI"
+                sizes: ["auto", "1024x1024", "1536x1024", "1024x1536", "2048x2048", "2048x1152", "3840x2160", "2160x3840"]
+                # 不报错，会找最近的比例值，可用 "1024x1024" "1248x832"
+                quality: ["low", "auto", "high", "medium"]
+                style: ["none", "vivid", "natural", "anime", "realistic"]
+            "gemini-3.1-flash-image-preview":
+                sdk_name: "OpenAI"
+                sizes: ["auto", "1024x1024", "1536x1024", "1024x1536", "2048x2048", "2048x1152", "3840x2160", "2160x3840"]
+                quality: ["low", "auto", "high", "medium"]
+                style: ["none", "vivid", "natural", "anime", "realistic"]
+            "nano-banana-2":
+                sdk_name: "OpenAI"
+                sizes: ["auto", "1024x1024", "1536x1024", "1024x1536", "2048x2048", "2048x1152", "3840x2160", "2160x3840"]
+                quality: ["low", "auto", "high", "medium"]
+                style: ["none", "vivid", "natural", "anime", "realistic"]
+
+
+VolcEngine:
+    SDK_Map:
+        "OpenAI_Responses": "https://ark.cn-beijing.volces.com/api/v3"
+    Model_Map:
+        VLM:
+            doubao-seed-1-8-251228:
+                sdk_name: "OpenAI_Responses"
+                thinking: ["none", "minimal", "low", "medium", "high"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            "doubao-seed-2-0-code-preview-260215":
+                sdk_name: "OpenAI_Responses"
+                thinking: ["none", "minimal", "low", "medium", "high"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+            "doubao-seed-2-0-mini-260215":
+                sdk_name: "OpenAI_Responses"
+                thinking: ["none", "minimal", "low", "medium", "high"]
+                max_tokens: 2048
+                temperature: 0.7
+                seed: 0
+                # web_search: False
