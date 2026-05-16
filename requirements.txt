@@ -1,2 +1,2 @@
 openai
-anthropic
+anthropic>=0.77.1

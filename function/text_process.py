@@ -301,19 +301,28 @@ def get_api_parse(sdk_name, response):
         parse_dict = result_empty_dict()
     return parse_dict
 
+
 # 获取目录下所有非隐藏文件
-def get_all_file_dict(dir_path, exp_name):
+def get_all_file_dict(input_dir_path, exp_name):
     file_dict = {}
-    for name in os.listdir(dir_path):
-        file_path = os.path.join(dir_path, name)
-        if os.path.isfile(file_path):
-            if not name.startswith('.') and name.endswith(exp_name):
-                base_name = name.replace(exp_name, "")
-                file_dict[base_name] = file_path
-    # 按创建时间降序排序（最新的文件在前）
-    # file_path_list = sorted(file_path_list, key=lambda x: os.path.getctime(x), reverse=True)
+    if os.path.isdir(input_dir_path):
+        for dirpath, dirnames, filenames in os.walk(input_dir_path):
     
+            # 过滤掉隐藏目录（原地修改 dirnames 很重要，否则 os.walk 仍会进入）
+            dirnames[:] = [d for d in dirnames if not d.startswith('.')]
+    
+            for f in filenames:
+                if not f.startswith('.') and f.endswith(exp_name):
+                    fp = os.path.join(dirpath, f)
+                    rel_path = os.path.relpath(fp, input_dir_path) # 相对路径
+                    dict_key = os.path.splitext(rel_path)[0]
+                    
+                    dict_key = dict_key.replace(os.sep, '/') # 统一路径分隔符
+        
+                    file_dict[dict_key] = fp
+            
     return file_dict
+    
 
 # 读取文件内容
 def get_file_content(file_path):
@@ -403,3 +412,26 @@ def write_text(file_path, text):
         print(f"The content has been successfully written to: {file_path}")
     except Exception as e:
         raise ValueError("File write failed:", e)
+
+
+def split_llm_output(text: str):
+    text = text.strip()
+
+    # 1. 完整 think
+    full_match = re.search(r"<think>(.*?)</think>(.*)", text, re.S,)
+
+    if full_match:
+        thinking = full_match.group(1).strip()
+        answer = full_match.group(2).strip()
+        return thinking, answer
+
+    # 2. 只有开始标签，没有结束标签
+    open_match = re.search(r"<think>(.*)", text, re.S,)
+
+    if open_match:
+        thinking = open_match.group(1).strip()
+        answer = ""
+        return thinking, answer
+
+    # 3. 没有 think 的情况下，就只剩下正式回复
+    return "", text

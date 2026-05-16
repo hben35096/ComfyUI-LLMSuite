@@ -23,6 +23,7 @@ def get_model_options(model_dict):
                 option_list.append(io.Int.Input("seed", default=value, min=0, max=0xffffffffffffffff, control_after_generate=False))
             elif option_name == "web_search":
                 option_list.append(io.Boolean.Input("web_search", optional=True, default=value, tooltip="Use the web search function to get better response results.", advanced=True))
+
                 
         model_option_group = io.DynamicCombo.Option(
             key=model_name,
@@ -93,7 +94,6 @@ class API_AnyVLM(io.ComfyNode):
         temperature = model_group.get("temperature", 0.7)
         seed = model_group.get("seed", 0)
         web_search = model_group.get("web_search", False)
-        # print(f"⚠️ 模型名称 {model_name} 思考 {thinking} 最大词元数 {max_tokens} 温度 {temperature} 网络搜索 {web_search}")
         
         sdk_name = api_model_config[platform_name]["Model_Map"][cls.model_type][model_name].get("sdk_name", "OpenAI") # "OpenAI"兜底
         
@@ -217,28 +217,20 @@ class API_AutoDLVLM(API_AnyVLM):
     @classmethod
     def define_schema(cls) -> io.Schema:
         platform_options = get_llm_ui_options(api_model_config, cls.platform_list, cls.model_type)
+        parent_schema = super().define_schema()
         
         return io.Schema(
             node_id="API_AutoDLVLM",
             display_name="API AutoDL VLM",
             category="🧪LLMSuite/API",
             search_aliases=["VLM", "API"],
-            inputs=[
-                io.String.Input("system_prompt", force_input=True, optional=True,),
-                io.Image.Input("images", optional=True,),
-                io.String.Input("user_prompt", multiline=True, default="",),
-                io.String.Input("api_token", default="", display_name=f"{cls.platform_tip} api_token", tooltip="Please enter the API Token of the current platform"),
-                io.DynamicCombo.Input("platform", options=platform_options, ),
-            ],
-            outputs=[
-                io.String.Output(display_name="generated_text"),
-                io.Custom("INFO").Output(display_name="all_info"),
-            ],
+            inputs=parent_schema.inputs,
+            outputs=parent_schema.outputs,
         )
 
 
 
-# AutoDL LLM 专用
+# AutoDL LLM 专用，没有图像输入，不应该使用 super()
 class API_AutoDLLLM(API_AnyVLM):
     platform_list = ["AutoDL", ]
     platform_tip = ' or '.join(platform_list)
@@ -274,26 +266,18 @@ class API_VolcEngineVLM(API_AnyVLM):
     @classmethod
     def define_schema(cls) -> io.Schema:
         platform_options = get_llm_ui_options(api_model_config, cls.platform_list, cls.model_type)
+        parent_schema = super().define_schema()
         
         return io.Schema(
             node_id="API_VolcEngineVLM",
             display_name="API VolcEngine VLM",
             category="🧪LLMSuite/API",
             search_aliases=["VLM", "API"],
-            inputs=[
-                io.String.Input("system_prompt", force_input=True, optional=True,),
-                io.Image.Input("images", optional=True,),
-                io.String.Input("user_prompt", multiline=True, default="",),
-                io.String.Input("api_token", default="", display_name=f"{cls.platform_tip} api_token", tooltip="请输入当前平台的 API Token"),
-                io.DynamicCombo.Input("platform", options=platform_options, ),
-            ],
-            outputs=[
-                io.String.Output(display_name="generated_text"),
-                io.Custom("INFO").Output(display_name="all_info"),
-            ],
+            inputs=parent_schema.inputs,
+            outputs=parent_schema.outputs,
         )
 
-        
+
     
 # 反馈信息分析
 class API_InfoAnalysis(io.ComfyNode):
@@ -330,4 +314,5 @@ class API_InfoAnalysis(io.ComfyNode):
         
         
 NODES = [API_AutoDLVLM, API_AutoDLLLM, API_VolcEngineVLM, API_InfoAnalysis,]  # API_AnyVLM 最好不要显示
+
 

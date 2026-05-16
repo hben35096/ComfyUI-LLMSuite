@@ -1,6 +1,6 @@
 import os
 from comfy_api.latest import io # , ui
-from ..function import img_process, text_process
+from ..function import text_process
 
 self_dir = text_process.self_dir
 role_dir = os.path.join(os.path.dirname(self_dir), 'roles')
@@ -53,10 +53,13 @@ class SaveSystemRole(io.ComfyNode):
     @classmethod
     def execute(cls, role_prompt, role_name) -> io.NodeOutput:
         if not role_name.strip():
-            raise ValueError("文件名不能为空！")
+            raise ValueError("The file name cannot be empty!")
         else:
             file_name = text_process.normalize_file_name(role_name, max_length=16)
-            file_path = os.path.join(role_dir, f"{file_name}.txt")
+            user_dir = os.path.join(role_dir, "user_new")
+            os.makedirs(user_dir, exist_ok=True)
+            
+            file_path = os.path.join(user_dir, f"{file_name}.txt")
             text_process.write_text(file_path, role_prompt)
 
             global file_dict # 有效，R 刷新后就能看到新列表了
