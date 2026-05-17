@@ -71,7 +71,9 @@ class API_AnyVLM(io.ComfyNode):
             ],
             outputs=[
                 io.String.Output(display_name="generated_text"),
-                io.Custom("INFO").Output(display_name="all_info"),
+                io.String.Output(display_name="thinking_text"),
+                io.String.Output(display_name="token_statistics"),
+                # io.Custom("INFO").Output(display_name="all_info"),
             ],
         )
 
@@ -132,10 +134,6 @@ class API_AnyVLM(io.ComfyNode):
                     timeout=timeout
                 )
                 
-                for block in response.content:
-                    if block.type == "text":
-                        generated_text = block.text
-                        break
                     
             elif sdk_name == "OpenAI":
                 messages = text_process.openai_prompt(user_prompt, system_prompt, images, messages=None)
@@ -155,8 +153,6 @@ class API_AnyVLM(io.ComfyNode):
                     client.chat.completions.create(**kwargs),
                     timeout=timeout
                 )
-
-                generated_text = response.choices[0].message.content
 
             elif sdk_name == "OpenAI_Responses":
                 messages = text_process.openai_responses_prompt(user_prompt, system_prompt, images, messages=None)
@@ -190,22 +186,28 @@ class API_AnyVLM(io.ComfyNode):
                     client.responses.create(**kwargs),
                     timeout=timeout
                 )
-                
-                for block in response.output:
-                    if block.type == "message":
-                        for c in block.content:
-                            if c.type == "output_text":
-                                generated_text = c.text
-                                break
       
             else:
                 raise ValueError(f"❌ Unknown SDK name: {sdk_name}")
                 
         except Exception as e:
             text_process.exception_process(e, platform_name)
-            
-        all_info = (sdk_name, response)
-        return io.NodeOutput(generated_text, all_info)
+
+
+
+
+        parsed = text_process.get_api_parse(sdk_name, response)
+        print(f"Model Name: {parsed['model']}\nRequest ID: {parsed['request_id']}")
+
+        token_statistics = (
+            f"input_tokens: {parsed['usage']['input_tokens']}  \n"
+            f"output_tokens: {parsed['usage']['output_tokens']}\n"
+            f" - thinking_tokens: {parsed['usage']['reasoning_tokens']}\n"
+            f" - visible_tokens: {parsed['usage']['visible_tokens']}\n\n"
+            f"total_tokens: {parsed['usage']['total_tokens']}"
+        )
+        return io.NodeOutput(parsed["reply"], parsed['reasoning'], token_statistics)
+
         
 
 # AutoDL VLM 专用
@@ -239,6 +241,7 @@ class API_AutoDLLLM(API_AnyVLM):
     @classmethod
     def define_schema(cls) -> io.Schema:
         platform_options = get_llm_ui_options(api_model_config, cls.platform_list, cls.model_type)
+        parent_schema = super().define_schema()
         
         return io.Schema(
             node_id="API_AutoDLLLM",
@@ -251,10 +254,7 @@ class API_AutoDLLLM(API_AnyVLM):
                 io.String.Input("api_token", default="", display_name=f"{cls.platform_tip} api_token", tooltip="Please enter the API Token of the current platform"),
                 io.DynamicCombo.Input("platform", options=platform_options, ),
             ],
-            outputs=[
-                io.String.Output(display_name="generated_text"),
-                io.Custom("INFO").Output(display_name="all_info"),
-            ],
+            outputs=parent_schema.outputs,
         )
 
 # 火山引擎 VLM 专用
@@ -277,42 +277,7 @@ class API_VolcEngineVLM(API_AnyVLM):
             outputs=parent_schema.outputs,
         )
 
-
-    
-# 反馈信息分析
-class API_InfoAnalysis(io.ComfyNode):
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="API_InfoAnalysis",
-            display_name="API Model Info Analysis",
-            category="🧪LLMSuite/API",
-            search_aliases=["VLM", "API"],
-            inputs=[
-                io.Custom("INFO").Input("all_info", ),
-            ],
-            outputs=[
-                io.String.Output(display_name="request_id"),
-                io.String.Output(display_name="thinking"),
-                io.String.Output(display_name="token_statistics"),
-            ],
-        )
-    @classmethod
-    def execute(cls, all_info) -> io.NodeOutput:
-        sdk_name, response = all_info
-        parsed = text_process.get_api_parse(sdk_name, response)
-
-        token_statistics = (
-            f"input_tokens: {parsed['usage']['input_tokens']}\n"
-            f"output_tokens: {parsed['usage']['output_tokens']}\n"
-            f" - thinking_tokens: {parsed['usage']['reasoning_tokens']}\n"
-            f" - visible_tokens: {parsed['usage']['visible_tokens']}\n\n"
-            f"total_tokens: {parsed['usage']['total_tokens']}"
-        )
-        return io.NodeOutput(parsed['request_id'], parsed['reasoning'], token_statistics)
-
         
-        
-NODES = [API_AutoDLVLM, API_AutoDLLLM, API_VolcEngineVLM, API_InfoAnalysis,]  # API_AnyVLM 最好不要显示
+NODES = [API_AutoDLVLM, API_AutoDLLLM, API_VolcEngineVLM,]  # API_AnyVLM 最好不要显示
 
 

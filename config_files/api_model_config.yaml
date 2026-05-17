@@ -23,7 +23,7 @@ AutoDL:
                 seed: 0
             Kimi-K2.5:
                 sdk_name: "OpenAI"
-                thinking: ["none", "minimal", "low", "medium", "high", "xhigh", "wwwww"]
+                thinking: ["none", "minimal", "low", "medium", "high", "xhigh"]
                 max_tokens: 2048
                 temperature: 0.7
                 seed: 0
